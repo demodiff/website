@@ -3,184 +3,42 @@
 <head>
   <title>demodiff &mdash; Berlin</title>
   <link rel="stylesheet" href="fieber.css">
+  <link rel="stylesheet" href="custom.css">
+  <script type="text/javascript" src="script.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-
-<style>
-body {
-  --w-body: 100%;
-  grid-template-columns: min-content auto min-content; 
-  font-family: var(--f-sans);
-}
-
-div#paginationContainer { margin: 2em 0; }
-div#paginationContainer a { display: inline-block; padding: 0.3em 0.8em; border-radius: 0.5rem; text-decoration: none; }
-div#paginationContainer a.active { background: hsl(var(--hs-static), var(--l-lowest)); color: hsl(var(--hs-static), var(--l-highest)); }
-div#paginationContainer a:hover { text-decoration: underline; }
-section#sidebar {
-  width: 100%;
-  flex-grow: 1;
-}
-
-@media only screen and (min-width: 1000px) {
-  main#content {
-    grid-area: content;
-  }
-  html {
-    font-size: 50%;
-  }
-  section#sidebar {
-    grid-area: sidebar;
-    flex-grow: 1;
-    margin-right: 2ch;
-  }
-  div.wrapper {
-    display: grid;
-    gap: 2em;
-    grid-template-areas: "content" "sidebar";
-    grid-template-columns: 1fr 3fr;
-    grid-template-areas: "sidebar content";
-  }
-}
-
-td  { vertical-align: top; }
-tr.highlighted {
-  background-color: hsl(var(--hs-highlight), var(--l-highlight));
-}
-
-td a.identifier {
-  background: hsl(var(--hs-static), var(--l-lowest));
-  color: hsl(var(--hs-static), var(--l-highest));
-  text-decoration: none;
-  border-radius: 0.5rem;
-  padding: 2px 4px;
-  min-width: 4ch;
-  display: inline-block;
-  text-align: right;
-}
-
-/*
-	Max width before this PARTICULAR table gets nasty. This query will take effect for any screen smaller than 760px and also iPads specifically.
-  Source: https://css-tricks.com/responsive-data-table-roundup/
-	*/
-	@media
-	  only screen 
-    and (max-width: 760px), (min-device-width: 768px) 
-    and (max-device-width: 1024px)  {
-
-    table {
-      margin-top: 2em;
-      table-layout: fixed;
-    }
-
-		/* Force table to not be like tables anymore */
-		table, thead, tbody, th, td, tr {
-			display: block;
-		}
-
-    tr {
-      margin-bottom: 2em;
-    }
-
-		/* Hide table headers (but not display: none;, for accessibility) */
-		thead tr {
-			position: absolute;
-			top: -9999px;
-			left: -9999px;
-		}
-    
-		td {
-			/* Behave  like a "row" */
-			border: none;
-			position: relative;
-			padding-left: 30%;
-		}
-
-		td:before {
-			/* Now like a table header */
-			position: absolute;
-			/* Top/left values mimic padding */
-			top: 0;
-			left: 6px;
-			white-space: nowrap;
-      font-weight: bold;
-		}
-
-		/*
-		Label the data
-    You could also use a data-* attribute and content for this. That way "bloats" the HTML, this way means you need to keep HTML and CSS in sync. Lea Verou has a clever way to handle with text-shadow.
-		*/
-		td:nth-of-type(1):before { content: "ID"; }
-		td:nth-of-type(2):before { content: "Datum"; }
-		td:nth-of-type(3):before { content: "Von"; }
-		td:nth-of-type(4):before { content: "Bis"; }
-		td:nth-of-type(5):before { content: "Thema"; }
-		td:nth-of-type(6):before { content: "PLZ"; }
-		td:nth-of-type(7):before { content: "Str, Nr"; }
-		td:nth-of-type(8):before { content: "Strecke"; }
-	}
-
-header {
-  min-height: 3em;
-}
-
-body header h1 a:any-link {
-  text-decoration: none;
-  color: hsl(var(--hs-static), var(--l-lowest)); 
-  padding: 0.3em 0.8em;
-  border-radius: 0.5rem; 
-  text-transform: uppercase;
-  letter-spacing: 3px;
-}
-
-img {
-  float:left;
-}
-
-
-body header h1 a:any-link:hover {
-  background: transparent;
-  color: hsl(var(--hs-interactive), var(--l-interactive));
-}
-
-
-button.to-top {
-  position: fixed;
-  bottom: 1em;
-  left: 1em;
-  padding: 0.3em 0.8em;
-}
-
-</style>
 <body>
 <div class="wrapper">
   <section id="sidebar">
     <header>
       <img src="logo.png" alt="Logo" width="30" height="30" />
       <h1><a href="/">demodiff</a></h1>
-    <p>demodiff macht Demonstrationen in Berlin durchsuchbar, indem die offizielle Liste f&uuml; Versammlungen der Polizei Berlin gescrapt wird.</p>
+    <p>demodiff macht angezeigte Demonstrationen in Berlin durchsuchbar, indem die offizielle Liste f&uuml;r Versammlungen der Polizei Berlin gescrapt wird.</p>
+    <p>Die Versammlungsbeh&ouml;rde entfernt n&auml;hmlich alte Versammlungen <a href="https://www.berlin.de/polizei/service/versammlungsbehoerde/versammlungen-aufzuege/">von ihrer Auflistung</a>.
+    Finde heraus, <a href="/info/">wie demodiff funktioniert und wer dahinter steckt</a>.</p>
     </header>
-   <form>
-    <label for="dropdown">Zeitpunkt ausw&auml;hlen</label>
+   <form onclick="return false;">
+    <label for="dropdown">1. Zeitpunkt ausw&auml;hlen</label>
     <select id="dropdown">
       <!-- Dropdown options will be populated dynamically -->
     </select>
 
+    <label for="topicInput">2. Nach Begriffen filtern</label>
+    <input type="text" id="topicInput" placeholder="Suchbegriff eingeben&#133;">
 
-    <label for="topicInput">Nach Thema filtern</label>
-    <input type="text" id="topicInput" placeholder="Thema eingeben...">
-
+    <div id="totalResults"></div>
     <div id="paginationContainer"></div>
 
-    <button id="copyLinkButton" disabled>Speichern</button>
+    <button id="copyLinkButton">Speichern</button>
     <button id="resetButton">Zur&uuml;cksetzen</button>
   </form>
-    <p><a href="">&Uuml;ber dieses Projekt</a></p>
+
+    <div id="error-message" style="display: none;"></div>
+    <div id="info-message" style="display: none;"></div>
+
   </section>
 
   <main id="content">
-
-  <div id="error-message" style="display: none;"></div>
 
   <table id="table" role="grid">
     <thead>
@@ -191,7 +49,7 @@ button.to-top {
         <th>Bis</th>
         <th>Thema</th>
         <th>PLZ</th>
-        <th>Stra&szlig;e/Nr</th>
+        <th>Stra&szlig;e, Nr.</th>
         <th>Aufzugsstrecke</th>
       </tr>
     </thead>
@@ -206,314 +64,5 @@ button.to-top {
 
 <button onclick="window.scrollTo(0, 0);" class="to-top">Hoch</button>
 
-  <script>
-    // Base path for fetching JSON files
-    var base_path = "https://raw.githubusercontent.com/cyroxx/demodiff_raw/main";
-
-    // Function to display an error message
-    function displayErrorMessage(message) {
-      var errorMessage = document.getElementById("error-message");
-      errorMessage.textContent = message;
-      errorMessage.style.display = "block";
-    }
-
-    // Function to clear the error message
-    function clearErrorMessage() {
-      var errorMessage = document.getElementById("error-message");
-      errorMessage.textContent = "";
-      errorMessage.style.display = "none";
-    }
-
-    // Function to fetch and display JSON data
-    function fetchAndDisplayData(selectedFilename, topicQuery, page = 1, pageSize = 42) {
-      fetch(base_path + "/" + selectedFilename + "?page=" + page + "&filter=" + encodeURIComponent(topicQuery))
-        .then(response => response.json())
-        .then(data => {
-          var table = document.getElementById("table");
-          var paginationContainer = document.getElementById("paginationContainer");
-
-          // Clear previous table content
-          table.querySelector("tbody").innerHTML = "";
-
-          // Get the data from the "index" key
-          var indexData = data["index"];
-
-          // Check if the index data is an array
-          if (Array.isArray(indexData)) {
-            // Clear the error message if the data is successfully loaded
-            clearErrorMessage();
-
-            // Filter the data based on the topic query
-            var filteredData = indexData;
-            if (topicQuery) {
-              filteredData = indexData.filter(obj => {
-                for (var key in obj) {
-                  if (obj[key].toString().toLowerCase().includes(topicQuery.toLowerCase())) {
-                    return true;
-                  }
-                }
-                return false;
-              });
-            }
-
-            // Apply pagination
-            var totalItems = filteredData.length;
-            var totalPages = Math.ceil(totalItems / pageSize);
-
-            if (page > totalPages) {
-              page = totalPages;
-            }
-
-            var startIndex = Math.max(0, page - 2);
-            var endIndex = Math.min(totalPages, page + 2);
-            var visibleData = filteredData.slice(startIndex * pageSize, endIndex * pageSize);
-
-            // Iterate over the filtered data and create table rows
-            visibleData.forEach(function(obj) {
-              var row = table.querySelector("tbody").insertRow();
-              var columns = ['id', 'datum', 'von', 'bis', 'thema', 'plz', 'strasse_nr', 'aufzugsstrecke'];
-
-              columns.forEach(function(key) {
-                var cell = row.insertCell();
-                var cellValue = obj[key];
-                if (topicQuery) {
-                  // Highlight the matched text in all fields using <mark> element
-                  cellValue = cellValue.toString().replace(new RegExp(topicQuery, "gi"), function(match) {
-                    return "<mark>" + match + "</mark>";
-                  });
-                }
-
-                if (key === "id") {
-                  var url = new URL(window.location);
-                  url.searchParams.set("timestamp", dropdown.value);
-                  url.searchParams.set("filter", topicInput.value);
-                  url.searchParams.set("page", page);
-
-                  cellValue = "<span id='" + cellValue + "'></span><a class='identifier' href='" + url.href.toString().replace(/#.*/, "") + "#" + cellValue + "'>" +  cellValue + "</a>";
-                }
-
-                if (cellValue === '') {
-                  cellValue = "&mdash;";
-                }
-
-                cell.innerHTML = cellValue;
-              });
-            });
-
-            // Get the hash value from the URL
-            var hash = window.location.hash.substring(1);
-            
-            // Find the table rows
-            var rows = document.querySelectorAll('table tr');
-            
-            // Iterate over the rows
-            rows.forEach(function(row) {
-              // Get the first data cell
-              var firstCell = row.querySelector('td:first-child a');
-            
-              // Check if the first cell's content matches the hash
-              if (firstCell && firstCell.textContent === hash) {
-                // Add a class to the row
-                row.classList.add('highlighted');
-              }
-            });
-
-            // Generate pagination links
-            paginationContainer.innerHTML = "";
-
-            if (totalPages > 1) {
-              if (startIndex > 0) {
-                var firstLink = document.createElement("a");
-                firstLink.href = "?page=1";
-                firstLink.textContent = "1";
-                firstLink.addEventListener("click", function(event) {
-                  event.preventDefault();
-                  fetchAndDisplayData(selectedFilename, topicQuery, 1, pageSize);
-                });
-                paginationContainer.appendChild(firstLink);
-
-                if (startIndex > 1) {
-                  var prevLink = document.createElement("span");
-                  prevLink.href = "?page=" + (startIndex - 1);
-                  prevLink.textContent = "...";
-                  prevLink.addEventListener("click", function(event) {
-                    event.preventDefault();
-                    fetchAndDisplayData(selectedFilename, topicQuery, startIndex - 1, pageSize);
-                  });
-                  paginationContainer.appendChild(prevLink);
-                }
-              }
-
-              for (var i = startIndex; i <= endIndex; i++) {
-                var link = document.createElement("a");
-                link.href = "?page=" + i;
-                link.textContent = i;
-                link.addEventListener("click", function(pageNum) {
-                  return function(event) {
-                    event.preventDefault();
-                    fetchAndDisplayData(selectedFilename, topicQuery, pageNum, pageSize);
-                  };
-                }(i));
-
-                if (i === page) {
-                  link.classList.add("active");
-                }
-
-                paginationContainer.appendChild(link);
-              }
-
-              if (endIndex < totalPages) {
-                if (endIndex < totalPages - 1) {
-                  var nextLink = document.createElement("span");
-                  nextLink.href = "?page=" + (endIndex + 1);
-                  nextLink.textContent = "...";
-                  nextLink.addEventListener("click", function(event) {
-                    event.preventDefault();
-                    fetchAndDisplayData(selectedFilename, topicQuery, endIndex + 1, pageSize);
-                  });
-                  paginationContainer.appendChild(nextLink);
-                }
-
-                var lastLink = document.createElement("a");
-                lastLink.href = "?page=" + totalPages;
-                lastLink.textContent = totalPages;
-                lastLink.addEventListener("click", function(event) {
-                  event.preventDefault();
-                  fetchAndDisplayData(selectedFilename, topicQuery, totalPages, pageSize);
-                });
-                paginationContainer.appendChild(lastLink);
-              }
-            }
-
-            // Get all child elements of the pagination
-            const childElements = paginationContainer.children;
-            
-            // Loop through the child elements
-            for (let i = childElements.length - 1; i >= 0; i--) {
-              const element = childElements[i];
-            
-              // Check if the innerHTML is equal to zero
-              if (element.innerHTML === '0') {
-                // Remove the element from its parent
-                element.parentNode.removeChild(element);
-              }
-            }
-
-          } else {
-            // Display an error message if the index data is not an array
-            displayErrorMessage("Ung&uuml;ltiges JSON-Datenformat.");
-          }
-        })
-        .catch(error => {
-          // Display an error message if there is an error fetching or parsing the JSON data
-          displayErrorMessage("Fehler beim Abrufen der JSON-Daten.");
-          console.log("Error fetching JSON:", error);
-        });
-    }
-
-    // Fetch the JSON file from the summary URL
-    fetch(base_path + "/summary/file_dict.json")
-      .then(response => response.json())
-      .then(data => {
-        var dropdown = document.getElementById("dropdown");
-        var topicInput = document.getElementById("topicInput");
-        var resetButton = document.getElementById("resetButton");
-        var copyLinkButton = document.getElementById("copyLinkButton");
-
-        // Iterate over the keys in the JSON data
-        Object.keys(data).forEach(function(key) {
-          // Create an option element for each key
-          var option = document.createElement("option");
-          option.value = key;
-          option.text = key;
-
-          dropdown.appendChild(option);
-        });
-
-        // Get the timestamp, page and filter from the URL
-        var pageParams = new URLSearchParams(window.location.search);
-        var page = parseInt(pageParams.get("page")) || 1;
-        var timestamp = pageParams.get("timestamp");
-        var filter = pageParams.get("filter");
-
-        if (timestamp) {
-          // Pre-select the option based on the timestamp fromthe URL
-          dropdown.value = timestamp;
-        } else {
-          // Select the last option by default if no timestamp is specified in the URL
-          dropdown.selectedIndex = dropdown.options.length - 1;
-        }
-
-        // Set the topic filter input value
-        topicInput.value = filter || '';
-
-        // Get the initially selected filename
-        var initiallySelectedFilename = data[dropdown.value];
-
-        // Fetch and display the initially selected data
-        fetchAndDisplayData(initiallySelectedFilename, filter, page);
-
-        // Handle dropdown change event
-        dropdown.addEventListener("change", function() {
-          var selectedFilename = data[this.value];
-          var topicQuery = topicInput.value;
-          fetchAndDisplayData(selectedFilename, topicQuery);
-
-          // Update the URL with the selected timestamp and filter
-          var url = new URL(window.location);
-          url.searchParams.set("page", 1);
-          url.searchParams.set("timestamp", this.value);
-          url.searchParams.set("filter", topicQuery);
-          window.history.pushState(null, null, url);
-        });
-
-        // Handle topic input event
-        topicInput.addEventListener("input", function() {
-          var selectedFilename = data[dropdown.value];
-          var topicQuery = this.value;
-          fetchAndDisplayData(selectedFilename, topicQuery);
-        });
-
-        // Handle reset button click event
-        resetButton.addEventListener("click", function() {
-          // Select the last option by default
-          dropdown.selectedIndex = dropdown.options.length - 1;
-
-          // Fetch and display the latest data
-          var selectedFilename = data[dropdown.value];
-          var topicQuery = topicInput.value;
-          fetchAndDisplayData(selectedFilename, topicQuery);
-
-          // Remove the timestamp, filter and page parameters from the URL
-          var url = new URL(window.location);
-          url.searchParams.delete("timestamp");
-          url.searchParams.delete("filter");
-          url.searchParams.delete("page", 1);
-          window.history.pushState(null, null, url);
-        });
-
-        // Handle copy link button click event
-        copyLinkButton.addEventListener("click", function() {
-          var url = new URL(window.location);
-          url.searchParams.set("timestamp", dropdown.value);
-          url.searchParams.set("filter", topicInput.value);
-          url.searchParams.set("page", page);
-
-          navigator.clipboard.writeText(url.href)
-            .then(function() {
-              console.log("Link copied to clipboard.");
-              alert("Der Link wurde in die Zwischenablage kopiert.");
-            })
-            .catch(function(error) {
-              console.error("Error copying link to clipboard:", error);
-            });
-        });
-      })
-      .catch(error => {
-        // Display an error message if there is an error fetching or parsing the summary JSON data
-        displayErrorMessage("Fehler beim Abrufen der Zusammenfassungs-JSON-Daten.");
-        console.log("Error fetching JSON:", error);
-      });
-  </script>
 </body>
 </html>
