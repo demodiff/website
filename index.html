@@ -1,222 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Versammlungsdatenbank Berlin - Historische Versionen</title>
-    <link rel="stylesheet" href="pico.min.css">
+  <title>demodiff &mdash; Berlin</title>
+  <link rel="stylesheet" href="fieber.css">
+  <link rel="stylesheet" href="custom.css">
+  <script type="text/javascript" src="script.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
+<div class="wrapper">
+  <section id="sidebar">
     <header>
-        <h1>Versammlungsdatenbank Berlin - Historische Versionen</h1>
-        <p>Mit dieser Seite können Sie durch die historischen Versionen der Versammlungsdatenbank Berlin blättern. Durch Auswahl eines bestimmten Zeitstempels wird der Status der Versammlungsdatenbank zu diesem Zeitpunkt angezeigt.</p>
+      <img src="logo.png" alt="Logo" width="30" height="30" />
+      <h1><a href="/">demodiff</a></h1>
+    <p>demodiff macht angezeigte Demonstrationen in Berlin durchsuchbar, indem die offizielle Liste f&uuml;r Versammlungen der Polizei Berlin gescrapt wird.</p>
+    <p>Die Versammlungsbeh&ouml;rde entfernt n&auml;hmlich alte Versammlungen <a href="https://www.berlin.de/polizei/service/versammlungsbehoerde/versammlungen-aufzuege/">von ihrer Auflistung</a>.
+    Finde heraus, <a href="/info/">wie demodiff funktioniert und wer dahinter steckt</a>.</p>
     </header>
+   <form onclick="return false;">
+    <label for="dropdown">1. Zeitpunkt ausw&auml;hlen</label>
+    <select id="dropdown">
+      <!-- Dropdown options will be populated dynamically -->
+    </select>
 
-    <div>
-        <label for="dropdown">Wählen Sie einen Zeitstempel:</label>
-        <select id="dropdown">
-            <!-- Dropdown options will be populated dynamically -->
-        </select>
+    <label for="topicInput">2. Nach Begriffen filtern</label>
+    <input type="text" id="topicInput" placeholder="Suchbegriff eingeben&#133;">
 
-        <button id="resetButton">Zurücksetzen auf neueste Version</button>
-    </div>
+    <div id="totalResults"></div>
+    <div id="paginationContainer"></div>
 
-    <label for="topicInput">Filtern nach Thema:</label>
-    <input type="text" id="topicInput" placeholder="Thema eingeben...">
-
-    <button id="copyLinkButton">Kopieren Sie den Link</button>
-
-    <table id="table" role="grid">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Datum</th>
-                <th>Von</th>
-                <th>Bis</th>
-                <th>Thema</th>
-                <th>PLZ</th>
-                <th>Straße/Nr</th>
-                <th>Aufzugsstrecke</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Table content will be populated dynamically -->
-        </tbody>
-    </table>
+    <button id="copyLinkButton">Speichern</button>
+    <button id="resetButton">Zur&uuml;cksetzen</button>
+  </form>
 
     <div id="error-message" style="display: none;"></div>
+    <div id="info-message" style="display: none;"></div>
 
-    <script>
-        // Base path for fetching JSON files
-        var base_path = "https://raw.githubusercontent.com/cyroxx/demodiff_raw/main";
+  </section>
 
-        // Construct the summary URL using the base path
-        var summaryUrl = base_path + "/summary/file_dict.json";
+  <main id="content">
 
-        // Function to display an error message
-        function displayErrorMessage(message) {
-            var errorMessage = document.getElementById("error-message");
-            errorMessage.textContent = message;
-            errorMessage.style.display = "block";
-        }
+  <table id="table" role="grid">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Datum</th>
+        <th>Von</th>
+        <th>Bis</th>
+        <th>Thema</th>
+        <th>PLZ</th>
+        <th>Stra&szlig;e, Nr.</th>
+        <th>Aufzugsstrecke</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Table content will be populated dynamically -->
+    </tbody>
+  </table>
 
-        // Function to clear the error message
-        function clearErrorMessage() {
-            var errorMessage = document.getElementById("error-message");
-            errorMessage.textContent = "";
-            errorMessage.style.display = "none";
-        }
 
-        // Function to fetch and display JSON data
-        function fetchAndDisplayData(selectedFilename, topicQuery) {
-            fetch(base_path + "/" + selectedFilename)
-                .then(response => response.json())
-                .then(data => {
-                    var table = document.getElementById("table");
+  </main>
+</div>
 
-                    // Clear previous table content
-                    table.querySelector("tbody").innerHTML = "";
+<button onclick="window.scrollTo(0, 0);" class="to-top">Hoch</button>
 
-                    // Get the data from the "index" key
-                    var indexData = data["index"];
-
-                    // Check if the index data is an array
-                    if (Array.isArray(indexData)) {
-                        // Clear the error message if the data is successfully loaded
-                        clearErrorMessage();
-
-                        // Filter the data based on the topic query
-                        var filteredData = indexData;
-                        if (topicQuery) {
-                            filteredData = indexData.filter(obj => obj.thema.toLowerCase().includes(topicQuery.toLowerCase()));
-                        }
-
-                        // Iterate over the filtered data and create table rows
-                        filteredData.forEach(function(obj) {
-                            var row = table.querySelector("tbody").insertRow();
-                            var columns = ['id', 'datum', 'von', 'bis', 'thema', 'plz', 'strasse_nr', 'aufzugsstrecke'];
-
-                            columns.forEach(function(key) {
-                                var cell = row.insertCell();
-                                var cellValue = obj[key];
-                                if (topicQuery && key === "thema") {
-                                    // Highlight the matched text in the "Thema" field using <mark> element
-                                    cellValue = cellValue.replace(new RegExp(topicQuery, "gi"), function(match) {
-                                        return "<mark>" + match + "</mark>";
-                                    });
-                                }
-                                cell.innerHTML = cellValue;
-                            });
-                        });
-                    } else {
-                        // Display an error message if the index data is not an array
-                        displayErrorMessage("Ungültiges JSON-Datenformat.");
-                    }
-                })
-                .catch(error => {
-                    // Display an error message if there is an error fetching or parsing the JSON data
-                    displayErrorMessage("Fehler beim Abrufen der JSON-Daten.");
-                    console.log("Error fetching JSON:", error);
-                });
-        }
-
-        // Fetch the JSON file from the summary URL
-        fetch(summaryUrl)
-            .then(response => response.json())
-            .then(data => {
-                var dropdown = document.getElementById("dropdown");
-                var topicInput = document.getElementById("topicInput");
-                var resetButton = document.getElementById("resetButton");
-                var copyLinkButton = document.getElementById("copyLinkButton");
-
-                // Iterate over the keys in the JSON data
-                Object.keys(data).forEach(function(key) {
-                    // Create an option element for each key
-                    var option = document.createElement("option");
-                    option.value = key;
-                    option.text = key;
-
-                    dropdown.appendChild(option);
-                });
-
-                // Get the timestamp from the URL
-                var urlParams = new URLSearchParams(window.location.search);
-                var timestamp = urlParams.get("timestamp");
-                var filter = urlParams.get("filter");
-
-                if (timestamp) {
-                    // Pre-select the option based on the timestamp from the URL
-                    dropdown.value = timestamp;
-                } else {
-                    // Select the last option by default if no timestamp is specified in the URL
-                    dropdown.selectedIndex = dropdown.options.length - 1;
-                }
-
-                // Set the topic filter input value
-                topicInput.value = filter || '';
-
-                // Get the initially selected filename
-                var initiallySelectedFilename = data[dropdown.value];
-
-                // Fetch and display the initially selected data
-                fetchAndDisplayData(initiallySelectedFilename, filter);
-
-                // Handle dropdown change event
-                dropdown.addEventListener("change", function() {
-                    var selectedFilename = data[this.value];
-                    var topicQuery = topicInput.value;
-                    fetchAndDisplayData(selectedFilename, topicQuery);
-
-                    // Update the URL with the selected timestamp and filter
-                    var url = new URL(window.location);
-                    url.searchParams.set("timestamp", this.value);
-                    url.searchParams.set("filter", topicQuery);
-                    window.history.pushState(null, null, url);
-                });
-
-                // Handle topic input event
-                topicInput.addEventListener("input", function() {
-                    var selectedFilename = data[dropdown.value];
-                    var topicQuery = this.value;
-                    fetchAndDisplayData(selectedFilename, topicQuery);
-                });
-
-                // Handle reset button click event
-                resetButton.addEventListener("click", function() {
-                    // Select the last option by default
-                    dropdown.selectedIndex = dropdown.options.length - 1;
-
-                    // Fetch and display the latest data
-                    var selectedFilename = data[dropdown.value];
-                    var topicQuery = topicInput.value;
-                    fetchAndDisplayData(selectedFilename, topicQuery);
-
-                    // Remove the timestamp and filter parameters from the URL
-                    var url = new URL(window.location);
-                    url.searchParams.delete("timestamp");
-                    url.searchParams.delete("filter");
-                    window.history.pushState(null, null, url);
-                });
-
-                // Handle copy link button click event
-                copyLinkButton.addEventListener("click", function() {
-                    var url = new URL(window.location);
-                    url.searchParams.set("timestamp", dropdown.value);
-                    url.searchParams.set("filter", topicInput.value);
-
-                    navigator.clipboard.writeText(url.href)
-                        .then(function() {
-                            console.log("Link copied to clipboard.");
-                            alert("Der Link wurde in die Zwischenablage kopiert.");
-                        })
-                        .catch(function(error) {
-                            console.error("Error copying link to clipboard:", error);
-                        });
-                });
-            })
-            .catch(error => {
-                // Display an error message if there is an error fetching or parsing the summary JSON data
-                displayErrorMessage("Fehler beim Abrufen der Zusammenfassungs-JSON-Daten.");
-                console.log("Error fetching JSON:", error);
-            });
-    </script>
 </body>
 </html>
